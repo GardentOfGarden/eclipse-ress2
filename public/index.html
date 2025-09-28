@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eclipse - Advanced Authentication</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <div class="logo">
+                <h1>ECLIPSE</h1>
+                <p>Advanced Authentication System</p>
+            </div>
+            <form id="loginForm">
+                <input type="text" placeholder="Username" id="username" required>
+                <input type="password" placeholder="Password" id="password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="dashboard" id="dashboard" style="display: none;">
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>ECLIPSE</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#keys">License Keys</a></li>
+                <li><a href="#generate">Generate Key</a></li>
+                <li><a href="#balance">Add Balance</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <span id="userWelcome">Welcome, Admin</span>
+                    <button id="logoutBtn">Logout</button>
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Sales</h3>
+                    <div class="stat-value" id="totalSales">$49,785</div>
+                    <div class="stat-trend live">+ LIVE</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Available Licenses</h3>
+                    <div class="stat-value" id="availableLicenses">7,744</div>
+                    <div class="stat-trend live">+ LIVE</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Direct Keys</h3>
+                    <div class="stat-value" id="directKeys">49,785</div>
+                    <div class="stat-trend live">+ LIVE</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Online Users</h3>
+                    <div class="stat-value" id="onlineUsers">7,744</div>
+                    <div class="stat-trend live">+ LIVE</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Conversion Rate</h3>
+                    <div class="stat-value" id="conversionRate">86.5%</div>
+                    <div class="stat-trend positive">+</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Health Score</h3>
+                    <div class="stat-value" id="healthScore">90%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-grid">
+                <div class="action-card">
+                    <h3>Add Balance</h3>
+                    <p>Top Up Your Balance</p>
+                    <p class="small">Add Funds to your account to purchase more license keys</p>
+                    <button class="action-btn" onclick="showAddBalance()">Add Balance</button>
+                </div>
+                <div class="action-card">
+                    <h3>Generate Keys</h3>
+                    <p>Create New License Keys</p>
+                    <div class="key-form">
+                        <select id="programLanguage">
+                            <option value="cpp">C++</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                        </select>
+                        <select id="keyDuration">
+                            <option value="30">30 Days</option>
+                            <option value="90">90 Days</option>
+                            <option value="365">1 Year</option>
+                        </select>
+                        <button class="action-btn" onclick="generateKey()">Generate Key</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="keys-section">
+                <h3>Recent License Keys</h3>
+                <div class="keys-list" id="keysList"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
