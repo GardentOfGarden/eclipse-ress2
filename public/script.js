@@ -1,5 +1,4 @@
 let currentUser = null;
-let currentToken = null;
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -20,24 +19,14 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
         if (data.success) {
             currentUser = data.user;
-            currentToken = data.token;
-            
-            localStorage.setItem('eclipse_user', JSON.stringify(currentUser));
-            localStorage.setItem('eclipse_token', currentToken);
-            
-            document.getElementById('userWelcome').textContent = `Welcome, ${currentUser.username}`;
             document.getElementById('sidebarUsername').textContent = currentUser.username;
-            document.getElementById('sidebarRole').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
-            document.getElementById('currentBalance').textContent = `$${currentUser.balance.toLocaleString()}`;
-            
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('dashboard').style.display = 'flex';
-            
-            loadDashboard();
-            loadApplications();
+            loadStats();
+            loadApps();
             setupNavigation();
         } else {
-            alert(data.error);
+            alert('Login failed: ' + data.error);
         }
     } catch (error) {
         alert('Login failed: ' + error.message);
@@ -46,24 +35,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
     currentUser = null;
-    currentToken = null;
-    localStorage.removeItem('eclipse_user');
-    localStorage.removeItem('eclipse_token');
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('loginContainer').style.display = 'flex';
     document.getElementById('loginForm').reset();
-});
-
-document.getElementById('mobileToggle').addEventListener('click', () => {
-    document.querySelector('.sidebar').classList.add('active');
-});
-
-document.getElementById('mobileClose').addEventListener('click', () => {
-    document.querySelector('.sidebar').classList.remove('active');
-});
-
-document.getElementById('createAppBtn').addEventListener('click', () => {
-    document.getElementById('createAppModal').classList.add('active');
 });
 
 function setupNavigation() {
@@ -78,8 +52,6 @@ function setupNavigation() {
             
             const pageName = item.getAttribute('data-page');
             showPage(pageName);
-            
-            document.querySelector('.sidebar').classList.remove('active');
         });
     });
 }
@@ -92,141 +64,163 @@ function showPage(pageName) {
     document.getElementById(`page-${pageName}`).classList.add('active');
     document.getElementById('pageTitle').textContent = document.querySelector(`[data-page="${pageName}"] span`).textContent;
     
-    if (pageName === 'applications') {
-        loadApplications();
-    } else if (pageName === 'licenses') {
-        loadApplicationsForSelect('appSelectLicense');
-        loadLicenses();
-    } else if (pageName === 'generate') {
-        loadApplicationsForSelect('appSelectGenerate');
+    if (pageName === 'apps') {
+        loadApps();
+    } else if (pageName === 'keys') {
+        loadAppsForSelect();
+        loadKeys();
     }
 }
 
-async function loadDashboard() {
-    if (!currentUser) return;
-
+async function loadStats() {
     try {
-        const response = await fetch('/api/dashboard', {
-            headers: {
-                'Authorization': `Bearer ${currentToken}`
-            }
-        });
+        const response = await fetch('/api/stats');
         const data = await response.json();
 
-        document.getElementById('totalKeys').textContent = data.totalKeys.toLocaleString();
-        document.getElementById('activeLicenses').textContent = data.activeKeys.toLocaleString();
-        document.getElementById('onlineUsers').textContent = data.onlineUsers.toLocaleString();
-        document.getElementById('totalApplications').textContent = data.totalApplications.toLocaleString();
-        document.getElementById('healthScore').textContent = data.healthScore;
-        document.getElementById('conversionRate').textContent = data.conversionRate;
+        if (data.success) {
+            document.getElementById('statTotalKeys').textContent = data.stats.totalKeys;
+            document.getElementById('statActiveKeys').textContent = data.stats.activeKeys;
+            document.getElementById('statTotalApps').textContent = data.stats.totalApps;
+            document.getElementById('statOnlineUsers').textContent = data.stats.onlineUsers;
+        }
     } catch (error) {
-        console.error('Failed to load dashboard:', error);
+        console.error('Failed to load stats:', error);
     }
 }
 
-async function loadApplications() {
+async function loadApps() {
     try {
-        const response = await fetch('/api/applications', {
-            headers: {
-                'Authorization': `Bearer ${currentToken}`
-            }
-        });
-        const apps = await response.json();
+        const response = await fetch('/api/apps');
+        const data = await response.json();
 
-        const appsGrid = document.getElementById('appsGrid');
-        appsGrid.innerHTML = '';
+        if (data.success) {
+            const appsList = document.getElementById('appsList');
+            appsList.innerHTML = '';
 
-        apps.forEach(app => {
-            const appCard = document.createElement('div');
-            appCard.className = 'app-card';
-            appCard.innerHTML = `
-                <h3>${app.name}</h3>
-                <p>Application ID: ${app.id}</p>
-                <div class="app-secret">
-                    <strong>Secret:</strong> ${app.secret}
-                </div>
-                <div class="app-actions">
-                    <button class="btn-secondary" onclick="viewAppDetails(${app.id})">
-                        <i class="fas fa-eye"></i> View Details
-                    </button>
-                </div>
-            `;
-            appsGrid.appendChild(appCard);
-        });
+            data.apps.forEach(app => {
+                const appCard = document.createElement('div');
+                appCard.className = 'app-card';
+                appCard.innerHTML = `
+                    <h3>${app.name}</h3>
+                    <p><strong>Owner ID:</strong> ${app.owner_id}</p>
+                    <p><strong>Version:</strong> ${app.version}</p>
+                    <div class="app-secret">
+                        <strong>Secret:</strong> ${app.secret}
+                    </div>
+                    <p><strong>App ID:</strong> ${app.id}</p>
+                `;
+                appsList.appendChild(appCard);
+            });
+        }
     } catch (error) {
-        console.error('Failed to load applications:', error);
+        console.error('Failed to load apps:', error);
     }
 }
 
-async function loadApplicationsForSelect(selectId) {
+async function loadAppsForSelect() {
     try {
-        const response = await fetch('/api/applications', {
-            headers: {
-                'Authorization': `Bearer ${currentToken}`
-            }
-        });
-        const apps = await response.json();
+        const response = await fetch('/api/apps');
+        const data = await response.json();
 
-        const select = document.getElementById(selectId);
-        select.innerHTML = '<option value="">Select Application</option>';
-        
-        apps.forEach(app => {
-            const option = document.createElement('option');
-            option.value = app.id;
-            option.textContent = app.name;
-            select.appendChild(option);
-        });
+        if (data.success) {
+            const select = document.getElementById('appSelect');
+            select.innerHTML = '<option value="">Select Application</option>';
+            
+            data.apps.forEach(app => {
+                const option = document.createElement('option');
+                option.value = app.id;
+                option.textContent = app.name;
+                select.appendChild(option);
+            });
+        }
     } catch (error) {
-        console.error('Failed to load applications for select:', error);
+        console.error('Failed to load apps for select:', error);
     }
 }
 
-async function loadLicenses() {
-    const appId = document.getElementById('appSelectLicense').value;
-    if (!appId) return;
+async function loadKeys() {
+    const appId = document.getElementById('appSelect').value;
+    if (!appId) {
+        document.getElementById('keysList').innerHTML = '<p>Select an application to view keys</p>';
+        return;
+    }
 
     try {
-        const response = await fetch(`/api/application/${appId}/licenses`, {
-            headers: {
-                'Authorization': `Bearer ${currentToken}`
-            }
-        });
-        const licenses = await response.json();
+        const response = await fetch(`/api/keys/${appId}`);
+        const data = await response.json();
 
-        const licensesTable = document.getElementById('licensesTable');
-        licensesTable.innerHTML = '';
+        if (data.success) {
+            const keysList = document.getElementById('keysList');
+            keysList.innerHTML = '';
 
-        const headerRow = document.createElement('div');
-        headerRow.className = 'license-row header';
-        headerRow.innerHTML = `
-            <div>License Key</div>
-            <div>Status</div>
-            <div>Created</div>
-            <div>Expires</div>
-            <div>Last Login</div>
-        `;
-        licensesTable.appendChild(headerRow);
-
-        licenses.forEach(license => {
-            const licenseRow = document.createElement('div');
-            licenseRow.className = 'license-row';
-            licenseRow.innerHTML = `
-                <div class="license-key">${license.license_key}</div>
-                <div class="license-status status-${license.status}">${license.status.toUpperCase()}</div>
-                <div>${new Date(license.created_at).toLocaleDateString()}</div>
-                <div>${new Date(license.expires_at).toLocaleDateString()}</div>
-                <div>${license.last_login ? new Date(license.last_login).toLocaleDateString() : 'Never'}</div>
-            `;
-            licensesTable.appendChild(licenseRow);
-        });
+            data.keys.forEach(key => {
+                const keyCard = document.createElement('div');
+                keyCard.className = 'key-card';
+                keyCard.innerHTML = `
+                    <h3>${key.license_key}</h3>
+                    <p><strong>Status:</strong> <span class="key-status status-${key.status}">${key.status}</span></p>
+                    <p><strong>Created:</strong> ${new Date(key.created_at).toLocaleDateString()}</p>
+                    <p><strong>Expires:</strong> ${new Date(key.expires_at).toLocaleDateString()}</p>
+                    ${key.hwid ? `<p><strong>HWID:</strong> ${key.hwid}</p>` : ''}
+                    ${key.last_login ? `<p><strong>Last Login:</strong> ${new Date(key.last_login).toLocaleString()}</p>` : ''}
+                `;
+                keysList.appendChild(keyCard);
+            });
+        }
     } catch (error) {
-        console.error('Failed to load licenses:', error);
+        console.error('Failed to load keys:', error);
     }
 }
 
-async function generateLicenseKey() {
-    const appId = document.getElementById('appSelectGenerate').value;
-    const duration = parseInt(document.getElementById('keyDuration').value);
+function showCreateAppModal() {
+    document.getElementById('createAppModal').classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+async function createApp() {
+    const name = document.getElementById('appName').value;
+    const version = document.getElementById('appVersion').value;
+
+    if (!name) {
+        alert('Please enter app name');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/app/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                version: version,
+                ownerid: currentUser.username
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            closeModal('createAppModal');
+            document.getElementById('appName').value = '';
+            document.getElementById('appVersion').value = '1.0';
+            loadApps();
+            loadStats();
+            alert('Application created successfully!');
+        } else {
+            alert('Failed to create app: ' + data.error);
+        }
+    } catch (error) {
+        alert('Failed to create app: ' + error.message);
+    }
+}
+
+async function generateKey() {
+    const appId = document.getElementById('appSelect').value;
 
     if (!appId) {
         alert('Please select an application');
@@ -234,29 +228,23 @@ async function generateLicenseKey() {
     }
 
     try {
-        const response = await fetch(`/api/application/${appId}/generate-key`, {
+        const response = await fetch('/api/key/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentToken}`
             },
             body: JSON.stringify({
-                duration: duration
+                app_id: appId,
+                duration: 30
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            const generatedKey = document.getElementById('generatedKey');
-            generatedKey.innerHTML = `
-                <h4>License Key Generated Successfully!</h4>
-                <div class="key">${data.licenseKey}</div>
-                <p>Expires: ${new Date(data.expiresAt).toLocaleDateString()}</p>
-            `;
-            generatedKey.style.display = 'block';
-            
-            loadDashboard();
+            alert(`Key generated successfully!\n\nKey: ${data.key}\nExpires: ${new Date(data.expires).toLocaleDateString()}`);
+            loadKeys();
+            loadStats();
         } else {
             alert('Failed to generate key: ' + data.error);
         }
@@ -265,110 +253,43 @@ async function generateLicenseKey() {
     }
 }
 
-async function banLicenseKey() {
-    const licenseKey = document.getElementById('banLicenseKey').value;
+async function banKey() {
+    const licenseKey = document.getElementById('banKey').value;
     const reason = document.getElementById('banReason').value;
 
     if (!licenseKey) {
-        alert('Please enter a license key');
+        alert('Please enter license key');
         return;
     }
 
-    const appId = prompt('Enter Application ID for this license:');
-    if (!appId) return;
-
     try {
-        const response = await fetch(`/api/application/${appId}/ban`, {
+        const response = await fetch('/api/key/ban', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentToken}`
             },
             body: JSON.stringify({
-                licenseKey: licenseKey,
-                reason: reason
+                license_key: licenseKey,
+                reason: reason || 'No reason provided'
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            alert('License banned successfully');
-            document.getElementById('banLicenseKey').value = '';
+            alert('Key banned successfully');
+            document.getElementById('banKey').value = '';
             document.getElementById('banReason').value = '';
+            loadStats();
         } else {
-            alert('Failed to ban license: ' + data.error);
+            alert('Failed to ban key: ' + data.error);
         }
     } catch (error) {
-        alert('Failed to ban license: ' + error.message);
+        alert('Failed to ban key: ' + error.message);
     }
 }
 
-function createApplication() {
-    const appName = document.getElementById('appName').value;
+document.getElementById('appSelect').addEventListener('change', loadKeys);
 
-    if (!appName) {
-        alert('Please enter application name');
-        return;
-    }
-
-    fetch('/api/create-app', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentToken}`
-        },
-        body: JSON.stringify({ name: appName })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal('createAppModal');
-            loadApplications();
-            document.getElementById('appName').value = '';
-        } else {
-            alert('Failed to create application: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('Failed to create application: ' + error.message);
-    });
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
-}
-
-function viewAppDetails(appId) {
-    alert(`Application details for ID: ${appId}\n\nIntegration examples available in documentation.`);
-}
-
-document.getElementById('appSelectLicense').addEventListener('change', loadLicenses);
-
-window.addEventListener('DOMContentLoaded', () => {
-    const savedUser = localStorage.getItem('eclipse_user');
-    const savedToken = localStorage.getItem('eclipse_token');
-    
-    if (savedUser && savedToken) {
-        currentUser = JSON.parse(savedUser);
-        currentToken = savedToken;
-        
-        document.getElementById('userWelcome').textContent = `Welcome, ${currentUser.username}`;
-        document.getElementById('sidebarUsername').textContent = currentUser.username;
-        document.getElementById('sidebarRole').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
-        document.getElementById('currentBalance').textContent = `$${currentUser.balance.toLocaleString()}`;
-        
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'flex';
-        
-        loadDashboard();
-        loadApplications();
-        setupNavigation();
-    }
-});
-
-setInterval(() => {
-    if (currentUser) {
-        loadDashboard();
-    }
-}, 30000);
+// Auto-refresh stats every 30 seconds
+setInterval(loadStats, 30000);
