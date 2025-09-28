@@ -1,7 +1,7 @@
 {
   "name": "eclipse-auth",
-  "version": "2.0.0",
-  "description": "Professional Authentication System",
+  "version": "3.0.0",
+  "description": "Professional Key Authentication System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -12,8 +12,7 @@
     "body-parser": "^1.20.2",
     "bcrypt": "^5.1.1",
     "sqlite3": "^5.1.6",
-    "uuid": "^9.0.1",
-    "jsonwebtoken": "^9.0.2"
+    "uuid": "^9.0.1"
   },
   "engines": {
     "node": ">=16.0.0"
