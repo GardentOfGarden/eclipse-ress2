@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eclipse - Professional Authentication</title>
+    <title>Eclipse - Professional Auth</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -11,10 +11,8 @@
     <div class="login-container" id="loginContainer">
         <div class="login-box">
             <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h1>ECLIPSE</h1>
+                <div class="logo-icon">🔒</div>
+                <h1>Eclipse</h1>
                 <p>Professional Authentication System</p>
             </div>
             <form id="loginForm">
@@ -26,9 +24,9 @@
                     <i class="fas fa-lock"></i>
                     <input type="password" placeholder="Password" id="password" required>
                 </div>
-                <button type="submit" class="login-btn">
-                    <span>Login</span>
-                    <i class="fas fa-arrow-right"></i>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
                 </button>
             </form>
         </div>
@@ -38,21 +36,18 @@
         <nav class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fas fa-shield-alt"></i>
-                    <h2>ECLIPSE</h2>
+                    <div class="logo-icon">🔒</div>
+                    <h2>Eclipse</h2>
                 </div>
-                <button class="mobile-close" id="mobileClose">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             
             <div class="user-info">
                 <div class="user-avatar">
-                    <i class="fas fa-user"></i>
+                    <i class="fas fa-user-shield"></i>
                 </div>
                 <div class="user-details">
                     <span class="username" id="sidebarUsername">Admin</span>
-                    <span class="user-role" id="sidebarRole">Administrator</span>
+                    <span class="user-role">Administrator</span>
                 </div>
             </div>
 
@@ -63,34 +58,22 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item" data-page="applications">
+                <li class="nav-item" data-page="apps">
                     <a href="#">
                         <i class="fas fa-cube"></i>
                         <span>Applications</span>
                     </a>
                 </li>
-                <li class="nav-item" data-page="licenses">
+                <li class="nav-item" data-page="keys">
                     <a href="#">
                         <i class="fas fa-key"></i>
                         <span>License Keys</span>
                     </a>
                 </li>
-                <li class="nav-item" data-page="generate">
-                    <a href="#">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Generate Key</span>
-                    </a>
-                </li>
                 <li class="nav-item" data-page="bans">
                     <a href="#">
                         <i class="fas fa-ban"></i>
-                        <span>Ban Management</span>
-                    </a>
-                </li>
-                <li class="nav-item" data-page="balance">
-                    <a href="#">
-                        <i class="fas fa-wallet"></i>
-                        <span>Add Balance</span>
+                        <span>Ban Manager</span>
                     </a>
                 </li>
             </ul>
@@ -99,216 +82,131 @@
         <main class="main-content">
             <header class="header">
                 <div class="header-left">
-                    <button class="mobile-toggle" id="mobileToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
                     <h1 id="pageTitle">Dashboard</h1>
                 </div>
                 <div class="header-right">
-                    <div class="notification">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </div>
-                    <div class="user-menu">
-                        <span id="userWelcome">Welcome, Admin</span>
-                        <button id="logoutBtn" class="logout-btn">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Logout
-                        </button>
-                    </div>
+                    <button id="logoutBtn" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
                 </div>
             </header>
 
             <div class="content-area">
-                <!-- Dashboard Page -->
+                <!-- Dashboard -->
                 <div class="page active" id="page-dashboard">
                     <div class="stats-grid">
-                        <div class="stat-card primary">
+                        <div class="stat-card">
                             <div class="stat-icon">
                                 <i class="fas fa-key"></i>
                             </div>
                             <div class="stat-info">
                                 <h3>Total Keys</h3>
-                                <div class="stat-value" id="totalKeys">0</div>
-                                <div class="stat-trend live">+ LIVE</div>
+                                <div class="stat-value" id="statTotalKeys">0</div>
                             </div>
                         </div>
-                        <div class="stat-card success">
+                        <div class="stat-card">
                             <div class="stat-icon">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>Active Licenses</h3>
-                                <div class="stat-value" id="activeLicenses">0</div>
-                                <div class="stat-trend live">+ LIVE</div>
+                                <h3>Active Keys</h3>
+                                <div class="stat-value" id="statActiveKeys">0</div>
                             </div>
                         </div>
-                        <div class="stat-card info">
-                            <div class="stat-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Online Users</h3>
-                                <div class="stat-value" id="onlineUsers">0</div>
-                                <div class="stat-trend live">+ LIVE</div>
-                            </div>
-                        </div>
-                        <div class="stat-card warning">
+                        <div class="stat-card">
                             <div class="stat-icon">
                                 <i class="fas fa-cube"></i>
                             </div>
                             <div class="stat-info">
                                 <h3>Applications</h3>
-                                <div class="stat-value" id="totalApplications">0</div>
-                                <div class="stat-trend">ACTIVE</div>
+                                <div class="stat-value" id="statTotalApps">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Online Users</h3>
+                                <div class="stat-value" id="statOnlineUsers">0</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="charts-grid">
-                        <div class="chart-card">
-                            <h3>System Health</h3>
-                            <div class="health-score">
-                                <div class="score-circle">
-                                    <span id="healthScore">92%</span>
-                                </div>
-                                <div class="health-info">
-                                    <div class="health-status excellent">Excellent</div>
-                                    <p>All systems operational</p>
-                                </div>
+                    <div class="quick-actions">
+                        <h2>Quick Actions</h2>
+                        <div class="actions-grid">
+                            <div class="action-card" onclick="showPage('apps')">
+                                <i class="fas fa-plus-circle"></i>
+                                <h3>Create App</h3>
+                                <p>Create new application</p>
                             </div>
-                        </div>
-                        <div class="chart-card">
-                            <h3>Conversion Rate</h3>
-                            <div class="conversion-rate">
-                                <div class="rate-value" id="conversionRate">86.5%</div>
-                                <div class="rate-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 86.5%"></div>
-                                    </div>
-                                </div>
+                            <div class="action-card" onclick="showPage('keys')">
+                                <i class="fas fa-key"></i>
+                                <h3>Generate Key</h3>
+                                <p>Create license key</p>
+                            </div>
+                            <div class="action-card" onclick="showPage('bans')">
+                                <i class="fas fa-ban"></i>
+                                <h3>Ban Key</h3>
+                                <p>Ban license key</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Applications Page -->
-                <div class="page" id="page-applications">
+                <!-- Applications -->
+                <div class="page" id="page-apps">
                     <div class="page-header">
-                        <h2>Your Applications</h2>
-                        <button class="btn-primary" id="createAppBtn">
+                        <h2>Applications</h2>
+                        <button class="btn-primary" onclick="showCreateAppModal()">
                             <i class="fas fa-plus"></i>
-                            Create Application
+                            Create App
                         </button>
                     </div>
-                    <div class="apps-grid" id="appsGrid"></div>
+                    <div class="apps-list" id="appsList">
+                        <!-- Apps will be loaded here -->
+                    </div>
                 </div>
 
-                <!-- Licenses Page -->
-                <div class="page" id="page-licenses">
+                <!-- Keys -->
+                <div class="page" id="page-keys">
                     <div class="page-header">
                         <h2>License Keys</h2>
-                        <select id="appSelectLicense" class="app-selector">
-                            <option value="">Select Application</option>
-                        </select>
-                    </div>
-                    <div class="licenses-table" id="licensesTable"></div>
-                </div>
-
-                <!-- Generate Key Page -->
-                <div class="page" id="page-generate">
-                    <div class="generate-card">
-                        <h2>Generate License Key</h2>
-                        <div class="generate-form">
-                            <div class="form-group">
-                                <label>Select Application</label>
-                                <select id="appSelectGenerate" class="app-selector" required>
-                                    <option value="">Choose Application</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Duration (Days)</label>
-                                <select id="keyDuration" class="app-selector">
-                                    <option value="7">7 Days</option>
-                                    <option value="30" selected>30 Days</option>
-                                    <option value="90">90 Days</option>
-                                    <option value="365">1 Year</option>
-                                </select>
-                            </div>
-                            <button class="btn-primary generate-btn" onclick="generateLicenseKey()">
+                        <div class="header-actions">
+                            <select id="appSelect" class="select-input">
+                                <option value="">Select Application</option>
+                            </select>
+                            <button class="btn-primary" onclick="generateKey()">
                                 <i class="fas fa-key"></i>
-                                Generate License Key
+                                Generate Key
                             </button>
                         </div>
-                        <div class="generated-key" id="generatedKey" style="display: none;"></div>
+                    </div>
+                    <div class="keys-list" id="keysList">
+                        <!-- Keys will be loaded here -->
                     </div>
                 </div>
 
-                <!-- Ban Management Page -->
+                <!-- Bans -->
                 <div class="page" id="page-bans">
                     <div class="page-header">
-                        <h2>Ban Management</h2>
+                        <h2>Ban Manager</h2>
                     </div>
-                    <div class="ban-card">
+                    <div class="ban-form">
                         <h3>Ban License Key</h3>
-                        <div class="ban-form">
-                            <div class="form-group">
-                                <label>License Key</label>
-                                <input type="text" id="banLicenseKey" placeholder="Enter license key to ban">
-                            </div>
-                            <div class="form-group">
-                                <label>Reason</label>
-                                <input type="text" id="banReason" placeholder="Reason for ban">
-                            </div>
-                            <button class="btn-danger" onclick="banLicenseKey()">
-                                <i class="fas fa-ban"></i>
-                                Ban License
-                            </button>
+                        <div class="form-group">
+                            <label>License Key</label>
+                            <input type="text" id="banKey" class="input-field" placeholder="Enter license key">
                         </div>
-                    </div>
-                </div>
-
-                <!-- Add Balance Page -->
-                <div class="page" id="page-balance">
-                    <div class="balance-card">
-                        <h2>Add Balance</h2>
-                        <div class="balance-info">
-                            <div class="current-balance">
-                                <span>Current Balance:</span>
-                                <span class="balance-amount" id="currentBalance">$10,000.00</span>
-                            </div>
+                        <div class="form-group">
+                            <label>Reason</label>
+                            <input type="text" id="banReason" class="input-field" placeholder="Ban reason">
                         </div>
-                        <div class="payment-methods">
-                            <h3>Select Payment Method</h3>
-                            <div class="methods-grid">
-                                <div class="method-card active">
-                                    <i class="fab fa-paypal"></i>
-                                    <span>PayPal</span>
-                                </div>
-                                <div class="method-card">
-                                    <i class="fab fa-cc-stripe"></i>
-                                    <span>Stripe</span>
-                                </div>
-                                <div class="method-card">
-                                    <i class="fab fa-bitcoin"></i>
-                                    <span>Bitcoin</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="amount-selection">
-                            <h3>Select Amount</h3>
-                            <div class="amount-grid">
-                                <div class="amount-option">$10</div>
-                                <div class="amount-option active">$25</div>
-                                <div class="amount-option">$50</div>
-                                <div class="amount-option">$100</div>
-                                <div class="amount-option">$250</div>
-                                <div class="amount-option">$500</div>
-                            </div>
-                        </div>
-                        <button class="btn-primary payment-btn">
-                            <i class="fas fa-credit-card"></i>
-                            Proceed to Payment
+                        <button class="btn-danger" onclick="banKey()">
+                            <i class="fas fa-ban"></i>
+                            Ban Key
                         </button>
                     </div>
                 </div>
@@ -320,7 +218,7 @@
     <div class="modal" id="createAppModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Create New Application</h3>
+                <h3>Create Application</h3>
                 <button class="modal-close" onclick="closeModal('createAppModal')">
                     <i class="fas fa-times"></i>
                 </button>
@@ -328,12 +226,16 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Application Name</label>
-                    <input type="text" id="appName" placeholder="Enter application name">
+                    <input type="text" id="appName" class="input-field" placeholder="My App">
+                </div>
+                <div class="form-group">
+                    <label>Version</label>
+                    <input type="text" id="appVersion" class="input-field" value="1.0" placeholder="1.0">
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeModal('createAppModal')">Cancel</button>
-                <button class="btn-primary" onclick="createApplication()">Create Application</button>
+                <button class="btn-primary" onclick="createApp()">Create</button>
             </div>
         </div>
     </div>
