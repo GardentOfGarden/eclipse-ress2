@@ -13,10 +13,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-const db = new sqlite3.Database(':memory:');
+const db = new sqlite3.Database('./eclipse.db');
 
 db.serialize(() => {
-    db.run(`CREATE TABLE users (
+    db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
         password TEXT,
@@ -24,7 +24,7 @@ db.serialize(() => {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    db.run(`CREATE TABLE licenses (
+    db.run(`CREATE TABLE IF NOT EXISTS licenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         license_key TEXT UNIQUE,
         user_id INTEGER,
@@ -36,15 +36,23 @@ db.serialize(() => {
         FOREIGN KEY(user_id) REFERENCES users(id)
     )`);
 
-    db.run(`CREATE TABLE sales (
+    db.run(`CREATE TABLE IF NOT EXISTS sales (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         license_key TEXT,
         amount REAL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    const adminPassword = bcrypt.hashSync('admin123', 10);
-    db.run('INSERT INTO users (username, password, balance) VALUES (?, ?, ?)', ['admin', adminPassword, 10000]);
+    db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
+        if (row.count === 0) {
+            const adminPassword = bcrypt.hashSync('admin123', 10);
+            db.run('INSERT INTO users (username, password, balance) VALUES (?, ?, ?)', ['admin', adminPassword, 10000]);
+        }
+    });
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.post('/api/login', (req, res) => {
